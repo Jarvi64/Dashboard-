@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' https://unpkg.com https://cdn.sheetjs.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:;">
+
+    <title>HR-Gemini | CV Screening Intelligence</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- SheetJS -->
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+
+    <!-- Project Styles -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/tooltip.css">
+</head>
+
+<body>
+    <header>
+        <div class="brand">
+            <i data-lucide="layers"></i>
+            CV Screening Intelligence
+        </div>
+        <div class="actions">
+            <button id="theme-toggle" class="btn btn-ghost btn-icon" title="Toggle theme">
+                <i data-lucide="sun" id="sun-icon"></i>
+                <i data-lucide="moon" id="moon-icon" style="display:none;"></i>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <aside>
+            <div class="panel-section">
+                <h3><i data-lucide="pie-chart"></i> Screening Overview</h3>
+                <div class="status-container">
+                    <div class="status-card">
+                        <span class="status-label">Select</span>
+                        <span class="status-val" id="count-shortlisted">0</span>
+                        <div class="status-bar s-select"></div>
+                    </div>
+                    <div class="status-card">
+                        <span class="status-label">Border</span>
+                        <span class="status-val" id="count-borderline">0</span>
+                        <div class="status-bar s-border"></div>
+                    </div>
+                    <div class="status-card">
+                        <span class="status-label">Reject</span>
+                        <span class="status-val" id="count-rejected">0</span>
+                        <div class="status-bar s-reject"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <h3><i data-lucide="sliders"></i> Scoring Weights</h3>
+                <div class="slider-group">
+                    <!-- Sliders injected by app.js -->
+                </div>
+            </div>
+
+        </aside>
+
+        <div class="data-view">
+            <div class="table-toolbar" style="display:none;" id="table-toolbar">
+                <div class="toolbar-left">
+                    <div class="search-wrapper">
+                        <i data-lucide="search" width="14"></i>
+                        <input type="text" id="search-text" placeholder="Search candidates..." class="toolbar-search">
+                    </div>
+                    <div class="result-count" id="result-count">0 found</div>
+                </div>
+
+                <div class="toolbar-center">
+                    <div class="view-tabs">
+                        <div class="view-tab active" data-view="table">List</div>
+                        <div class="view-tab" data-view="board">Board</div>
+                    </div>
+                </div>
+
+                <div class="toolbar-right">
+                    <div class="dropdown" id="col-toggle-wrapper">
+                        <button class="btn btn-outline" id="col-toggle-btn">
+                            <i data-lucide="settings-2" width="14"></i> View
+                        </button>
+                        <div class="dropdown-menu" id="col-dropdown">
+                            <!-- Dynamic checkboxes added here -->
+                        </div>
+                    </div>
+                    <button class="btn btn-outline" style="position: relative;">
+                        <i data-lucide="upload-cloud" width="14"></i> Upload
+                        <input type="file" id="fileInputToolbar" class="upload-input" accept=".xlsx, .xls">
+                    </button>
+                    <button class="btn btn-outline" id="export-btn">
+                        <i data-lucide="download" width="14"></i> Export
+                    </button>
+                </div>
+            </div>
+
+            <div id="empty-state" class="empty-state">
+                <i data-lucide="upload-cloud" class="empty-state-icon"></i>
+                <h2>Ready to Screen?</h2>
+                <p>Upload your candidate spreadsheet to get started with AI-driven screening and scoring.</p>
+                <div class="btn btn-primary" style="margin-top: 1rem;">
+                    <i data-lucide="plus" width="18"></i> Upload File
+                    <input type="file" id="fileInputOverlay" class="upload-input" accept=".xlsx, .xls">
+                </div>
+            </div>
+
+            <div id="table-wrapper" class="table-wrapper" style="display: none;">
+                <div style="flex: 1; overflow: auto; min-height: 0;">
+                    <table id="main-table">
+                        <thead id="table-head"></thead>
+                        <tbody id="table-body"></tbody>
+                    </table>
+                </div>
+
+                <div id="pagination-container" class="pagination-container">
+                    <div class="pagination-center">
+                        <div class="page-size-wrap">
+                            Rows per page:
+                            <div class="custom-select" id="page-size-dropdown-container">
+                                <div class="custom-select-trigger" id="page-size-trigger">
+                                    <span id="current-page-size">10</span>
+                                    <i data-lucide="chevron-down" width="14"></i>
+                                </div>
+                                <div class="dropdown-menu" id="page-size-menu">
+                                    <div class="dropdown-item" data-value="10">10</div>
+                                    <div class="dropdown-item" data-value="20">20</div>
+                                    <div class="dropdown-item" data-value="50">50</div>
+                                    <div class="dropdown-item" data-value="100">100</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="page-info" id="page-info-text">
+                            Page 1 of 1
+                        </div>
+                        <div class="pagination-right" id="pagination-controls">
+                            <!-- Dynamic Page Buttons -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="kanban-view" class="kanban-board" style="display: none;">
+                <div class="kanban-col" id="col-shortlisted">
+                    <div class="kanban-header">
+                        <span style="color:#10b981">Shortlisted</span>
+                        <span class="kanban-count" id="count-k-short">0</span>
+                    </div>
+                    <div class="kanban-cards" id="list-shortlisted"></div>
+                </div>
+                <div class="kanban-col" id="col-borderline">
+                    <div class="kanban-header">
+                        <span style="color:#f59e0b">Borderline</span>
+                        <span class="kanban-count" id="count-k-border">0</span>
+                    </div>
+                    <div class="kanban-cards" id="list-borderline"></div>
+                </div>
+                <div class="kanban-col" id="col-rejected">
+                    <div class="kanban-header">
+                        <span style="color:#ef4444">Rejected</span>
+                        <span class="kanban-count" id="count-k-reject">0</span>
+                    </div>
+                    <div class="kanban-cards" id="list-rejected"></div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Modal Structure -->
+    <div id="candidate-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-hero">
+                <div id="modal-avatar" class="modal-avatar"></div>
+                <div class="modal-hero-info">
+                    <h2 id="modal-name" class="modal-name"></h2>
+                    <div id="modal-contact" class="modal-contact"></div>
+                </div>
+                <button class="btn-close" id="modal-close-btn">
+                    <i data-lucide="x" width="20"></i>
+                </button>
+            </div>
+            <div class="modal-scores" id="modal-scores"></div>
+            <div class="modal-body">
+                <div class="modal-section">
+                    <h3 class="modal-section-title">Profile Details</h3>
+                    <div id="modal-details-grid" class="modal-details-grid"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Project Scripts -->
+    <script src="js/utils.js"></script>
+    <script src="js/state.js"></script>
+    <script src="js/data-processing.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,114 @@
+/* Score Breakdown Tooltip */
+.score-tooltip {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    min-width: 280px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+}
+
+.dark .score-tooltip {
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.score-with-tooltip:hover .score-tooltip {
+    opacity: 1;
+    visibility: visible;
+}
+
+.score-tooltip-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted-foreground);
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.score-tooltip-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    gap: 1rem;
+}
+
+.score-tooltip-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--foreground);
+}
+
+.score-tooltip-calc {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    font-family: 'Courier New', monospace;
+}
+
+.score-tooltip-value {
+    color: var(--primary);
+    font-weight: 700;
+}
+
+.score-tooltip-weight {
+    color: var(--muted-foreground);
+    font-weight: 600;
+}
+
+.score-tooltip-op {
+    color: var(--muted-foreground);
+    font-weight: 400;
+}
+
+.score-tooltip-result {
+    color: var(--foreground);
+    font-weight: 700;
+    min-width: 2.5rem;
+    text-align: right;
+}
+
+.score-tooltip-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.score-tooltip::before {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: var(--border);
+}
+
+.score-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: var(--background);
+    margin-top: -1px;
+}
